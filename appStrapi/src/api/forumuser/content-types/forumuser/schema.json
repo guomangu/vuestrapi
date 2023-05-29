@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "forumusers",
+  "info": {
+    "singularName": "forumuser",
+    "pluralName": "forumusers",
+    "displayName": "forumuser",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "usernom": {
+      "type": "string",
+      "minLength": 1,
+      "default": "ano",
+      "unique": false,
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

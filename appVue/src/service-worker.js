@@ -47,20 +47,27 @@ workbox.precaching.precacheAndRoute(
     cache.put(url, response.clone());
   }
   
+  // Utilisez Workbox pour gérer le cache des routes dynamiques
+  workbox.routing.registerRoute(
+    new RegExp('.*'), 
+    new workbox.strategies.CacheFirst({
+      cacheName: 'dynamic-route-cache',
+      plugins: [
+        new workbox.expiration.ExpirationPlugin({
+          // Définissez une durée de mise en cache appropriée selon vos besoins
+          maxAgeSeconds: 60 * 60 * 24 * 7,
+        }),
+      ],
+    })
+  );
+  
+  
   
 
-  // workbox.routing.registerRoute(
-  //   new RegExp('.*'), 
-  //   new workbox.strategies.CacheFirst({
-  //     cacheName: 'dynamic-route-cache',
-  //     plugins: [
-  //       new workbox.expiration.ExpirationPlugin({
-  //         // Définissez une durée de mise en cache appropriée selon vos besoins
-  //         maxAgeSeconds: 60 * 60 * 24 * 7,
-  //       }),
-  //     ],
-  //   })
-  // );
+
+
+
+  //============================
   
   // workbox.routing.registerRoute(
   //   ({ url }) => {

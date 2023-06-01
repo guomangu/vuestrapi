@@ -101,6 +101,8 @@ export default {
       event.preventDefault(); // Empêche le rechargement de la page
     },
     gogo(){
+      this.sw();
+
       console.log("launch on the sworl");
       console.log(this.prise);
       console.log(Cookies.get());
@@ -134,68 +136,66 @@ export default {
       console.log(this.prise);
 
 
-      this.sw();
-    },
-    sw(){
-      // Envoyer un message au service worker pour mettre à jour le cache avec la nouvelle URL
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({
-          type: 'updateCache',
-          url: window.location.href
-        });
-      }
+      
     },
 
+
+
+
+
+    sw(){
+      if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then((registration) => {
+      registration.active.postMessage({
+        type: 'updateCache',
+        url: window.location.href
+      });
+    });
+  }
+    },
 
 
 
 
     start(){
-      // console.log(window.location.href)
       let u=window.location.href;
       let tabU=u.split("/");  
+      if (tabU[3]!=="") {
+        let url="https://api-adresse.data.gouv.fr/search/?q="+decodeURI(tabU[3]);
+        this.commune.nom=decodeURI(tabU[3]);
 
-      // console.log(tabU);
+        fetch(url,{
+          method: "GET",
+        })
+        .then(response=>response.json())
+        .then(response => {
+          // console.log(response.features[0].geometry.coordinates);
+          this.long=response.features[0].geometry.coordinates[0];
+          this.lat=response.features[0].geometry.coordinates[1];
+          let url="https://geo.api.gouv.fr/communes?lon="+this.long+"&lat="+this.lat;
 
-
-      navigator.geolocation.getCurrentPosition((position) => {
-        // console.log(position.coords);
-
-        let url="";
-        if (tabU[3]!=="") {
-          url="https://api-adresse.data.gouv.fr/search/?q="+decodeURI(tabU[3]);
-          this.commune.nom=decodeURI(tabU[3]);
-          console.log(this.commune.nom);
-
-          fetch(url,{
-            method: "GET",
-          })
-          .then(response=>response.json())
-          .then(response => {
-            // console.log(response.features[0].geometry.coordinates);
-            this.long=response.features[0].geometry.coordinates[0];
-            this.lat=response.features[0].geometry.coordinates[1];
-            this.bonjour2boite();
-          })
-        }else{
-          console.log("fuuuuuu");
-          url="https://geo.api.gouv.fr/communes?lon="+position.coords.longitude+"&lat="+position.coords.latitude;
+          this.bonjour(url);
+        })
+      }else{
+        navigator.geolocation.getCurrentPosition((position) => {
+          let url="https://geo.api.gouv.fr/communes?lon="+position.coords.longitude+"&lat="+position.coords.latitude;
           this.long=position.coords.longitude;
           this.lat=position.coords.latitude;
           this.bonjour(url);
-        }
-
-        
-      });
+        });
+      }
     },
 
 
     async bonjour(url){
+      console.log("!!!!!");
+      console.log(url);
       await fetch(url,{
       }).then(response => response.json())
       .then(response=>{
+        
+        // console.log(response);
         this.commune=response[0];
-        // console.log(this.commune);
 
         let u=window.location.href;
         let tabU=u.split("/");
@@ -207,8 +207,9 @@ export default {
       })
     },
     async bonjour2boite(){
-
-      await fetch("https://recherche-entreprises.api.gouv.fr//near_point?lat="+this.lat+"&long="+this.long+"&rad=5",{
+      console.log(this.commune);
+      //https://recherche-entreprises.api.gouv.fr/search?categorie_entreprise=PME&code_postal=68000&departement=68&est_organisme_formation=true&section_activite_principale=J&page=1&per_page=25
+      await fetch("https://recherche-entreprises.api.gouv.fr/search?code_postal="+this.commune.codesPostaux+"&est_organisme_formation=true&section_activite_principale=J&etat_administratif=A&limite_matching_etablissements=1&page=1&per_page=25",{
           method: "GET",
       })
       .then(response=>response.json())

@@ -23,34 +23,32 @@ workbox.precaching.precacheAndRoute(
 
 
 
-
-  
-
-  self.addEventListener('message', (event) => {
-    if (event.data.type === 'updateCache') {
-      const url = new URL(event.data.url, self.location.origin);
-      event.waitUntil(updateCacheForURL(url));
-    }
-  });
-  
-  async function updateCacheForURL(url) {
-    const cache = await caches.open('dynamic-route-cache');
-    const cachedResponse = await cache.match(url);
-  
-    if (cachedResponse) {
-      // L'URL est déjà en cache, rien à faire
-      return;
-    }
-  
-    // L'URL n'est pas en cache, récupérez-la en ligne et mettez-la en cache
-    const response = await fetch(url);
-    cache.put(url, response.clone());
+self.addEventListener('message', (event) => {
+  if (event.data.type === 'updateCache') {
+    const url = new URL(event.data.url, self.location.origin);
+    event.waitUntil(updateCacheForURL(url));
   }
+});
+
+async function updateCacheForURL(url) {
+  const cache = await caches.open('dynamic-route-cache');
+  const cachedResponse = await cache.match(url);
+
+  if (cachedResponse) {
+    // L'URL est déjà en cache, rien à faire
+    return;
+  }
+
+  // L'URL n'est pas en cache, récupérez-la en ligne et mettez-la en cache
+  const response = await fetch(url);
+  cache.put(url, response.clone());
+}
+
   
-  // Utilisez Workbox pour gérer le cache des routes dynamiques
+  // Utilisez Workbox pour gérer la stratégie Network First pour les autres routes dynamiques
   workbox.routing.registerRoute(
-    new RegExp('.*'), 
-    new workbox.strategies.CacheFirst({
+    new RegExp('.*'),
+    new workbox.strategies.NetworkFirst({
       cacheName: 'dynamic-route-cache',
       plugins: [
         new workbox.expiration.ExpirationPlugin({
@@ -61,7 +59,31 @@ workbox.precaching.precacheAndRoute(
     })
   );
   
+
+
+
   
+// self.addEventListener('message', (event) => {
+//   if (event.data.type === 'updateCache') {
+//     const url = new URL(event.data.url, self.location.origin);
+//     event.waitUntil(updateCacheForURL(url));
+//   }
+// });
+
+// async function updateCacheForURL(url) {
+//   const cache = await caches.open('dynamic-route-cache');
+//   const cachedResponse = await cache.match(url);
+
+//   if (cachedResponse) {
+//     // L'URL est déjà en cache, rien à faire
+//     return;
+//   }
+
+//   // L'URL n'est pas en cache, récupérez-la en ligne et mettez-la en cache
+//   const response = await fetch(url);
+//   cache.put(url, response.clone());
+// }
+
   
 
 

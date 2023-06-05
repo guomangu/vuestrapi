@@ -101,7 +101,6 @@ export default {
       event.preventDefault(); // Empêche le rechargement de la page
     },
     gogo(){
-      this.sw();
 
       console.log("launch on the sworl");
       console.log(this.prise);
@@ -136,7 +135,8 @@ export default {
       console.log(this.prise);
 
 
-      
+      this.sw();
+
     },
 
 
